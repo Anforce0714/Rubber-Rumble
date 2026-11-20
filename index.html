@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rubble Rumble</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game">
+    <header class="header">
+      <div>
+        <h1>🧽 Rubble Rumble</h1>
+        <p>AIM · CHARGE · COVER</p>
+      </div>
+      <button id="restart" class="restart">Restart ↻</button>
+    </header>
+
+    <section class="scoreboard">
+      <div class="player">
+        <span class="dot blue"></span>
+        Player
+      </div>
+      <div id="status">Player round：Choose angle</div>
+      <div class="player">
+        <span class="dot red"></span>
+        AI Opponent
+      </div>
+    </section>
+
+    <div class="canvas-wrap">
+      <canvas id="gameCanvas" width="900" height="560"></canvas>
+
+      <div id="result" class="result hidden">
+        <h2 id="resultTitle">VICTORY！</h2>
+        <p id="resultText"></p>
+        <button id="playAgain">Play Again</button>
+      </div>
+    </div>
+
+    <section class="controls">
+      <div class="control-info">
+        <span>Current Movement</span>
+        <strong id="instruction">Click on table to adjust angle</strong>
+      </div>
+
+      <div class="power-area">
+        <div class="power-label">
+          <span>Strength</span>
+          <strong id="powerText">0%</strong>
+        </div>
+
+        <div class="power-track">
+          <div id="powerFill"></div>
+        </div>
+
+        <button id="launch" disabled>
+          Click & Hold · Release to shoot
+        </button>
+      </div>
+    </section>
+
+    <footer>
+      Target：Cover your rubber on top of opponent rubber
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
