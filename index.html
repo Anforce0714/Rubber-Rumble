@@ -3,17 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rubble Rumble</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Rubber Rumble</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/menu.css">
 </head>
 <body>
-  <main class="game">
+
+  <!-- ===== BACKGROUND (shared by all screens) ===== -->
+  <div class="bg" aria-hidden="true">
+    <i class="float-eraser fe-blue fe1"></i>
+    <i class="float-eraser fe-red fe2"></i>
+    <i class="float-eraser fe-blue fe3"></i>
+    <i class="float-eraser fe-red fe4"></i>
+    <i class="float-eraser fe-blue fe5"></i>
+    <i class="float-eraser fe-red fe6"></i>
+  </div>
+
+  <!-- ===== MAIN MENU ===== -->
+  <section id="screen-menu" class="screen">
+    <div class="menu-card">
+      <div class="logo" aria-hidden="true">
+        <span class="logo-eraser blue"></span>
+        <span class="logo-vs">VS</span>
+        <span class="logo-eraser red"></span>
+      </div>
+
+      <h1 class="title">
+        <span class="t-blue">RUBBER</span>
+        <span class="t-red">BATTLE</span>
+      </h1>
+      <p class="tagline"><span>AIM</span><i></i><span>CHARGE</span><i></i><span>COVER</span></p>
+
+      <div class="menu-buttons">
+        <button class="btn btn-gold btn-play" data-action="play"><span class="ico">▶</span>PLAY</button>
+        <button class="btn" data-action="levels"><span class="ico">🏁</span>LEVELS</button>
+        <div class="menu-row">
+          <button class="btn btn-dark" data-action="how"><span class="ico">❓</span>HOW TO PLAY</button>
+          <button class="btn btn-dark" data-action="settings"><span class="ico">⚙️</span>SETTINGS</button>
+        </div>
+      </div>
+
+      <p class="menu-foot">Land your eraser on top of the rival's to win</p>
+    </div>
+  </section>
+
+  <!-- ===== GAME MODE SELECTION ===== -->
+  <section id="screen-modes" class="screen hidden">
+    <div class="panel">
+      <div class="panel-head">
+        <button class="back-btn" data-action="back-menu">← Back</button>
+        <h2>SELECT MODE</h2>
+        <span class="panel-spacer"></span>
+      </div>
+
+      <div class="mode-grid">
+        <button class="mode-card mode-easy" id="modeEasy" data-mode="easy">
+          <span class="mode-tag">BEGINNER</span>
+          <span class="mode-icon">🌱</span>
+          <span class="mode-name">EASY MODE</span>
+          <span class="mode-desc">20 levels for beginners. The AI starts out clumsy and slowly sharpens up.</span>
+          <span class="mode-progress"><span class="bar"><span class="bar-fill" id="easyBar"></span></span><span id="easyProgress">0 / 20 cleared</span></span>
+        </button>
+
+        <button class="mode-card mode-hard" id="modeHard" data-mode="hard">
+          <span class="mode-tag">EXPERT</span>
+          <span class="mode-icon" id="hardIcon">🔥</span>
+          <span class="mode-name">HARD MODE</span>
+          <span class="mode-desc">20 levels for experienced players. A sharper AI that rarely wastes a shot.</span>
+          <span class="mode-progress"><span class="bar"><span class="bar-fill" id="hardBar"></span></span><span id="hardProgress">0 / 20 cleared</span></span>
+        </button>
+      </div>
+      <p class="hint" id="modeHint"></p>
+    </div>
+  </section>
+
+  <!-- ===== LEVEL SELECTION ===== -->
+  <section id="screen-levels" class="screen hidden">
+    <div class="panel">
+      <div class="panel-head">
+        <button class="back-btn" data-action="back-levels">← Back</button>
+        <h2 id="levelsTitle">LEVELS</h2>
+        <span class="panel-spacer"></span>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button class="tab" id="tabEasy" data-tab="easy" role="tab">Easy</button>
+        <button class="tab" id="tabHard" data-tab="hard" role="tab">Hard</button>
+      </div>
+
+      <div class="levels-progress">
+        <span class="bar"><span class="bar-fill" id="levelsBar"></span></span>
+        <span id="levelsProgress">0 / 20 cleared</span>
+      </div>
+
+      <div class="level-grid" id="levelGrid"></div>
+      <p class="hint" id="levelsHint"></p>
+    </div>
+  </section>
+
+  <!-- ===== HOW TO PLAY ===== -->
+  <section id="screen-how" class="screen hidden">
+    <div class="panel">
+      <div class="panel-head">
+        <button class="back-btn" data-action="back-menu">← Back</button>
+        <h2>HOW TO PLAY</h2>
+        <span class="panel-spacer"></span>
+      </div>
+
+      <ol class="how-list">
+        <li><b>Aim.</b> Click or tap the table to point your blue eraser. You can drag to fine-tune the direction.</li>
+        <li><b>Charge.</b> Press and hold the shoot button. The power bar fills up. Don't overshoot!</li>
+        <li><b>Shoot.</b> Release the button to launch your eraser through the air.</li>
+        <li><b>Cover.</b> Land your eraser on top of the red one so it is fully covered. Match its angle too!</li>
+        <li><b>Take turns.</b> If you miss, the AI shoots back. If it covers your eraser first, you lose.</li>
+        <li><b>Progress.</b> Win a level to unlock the next one. Beat Easy Level 20 to unlock Hard Mode.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===== SETTINGS ===== -->
+  <section id="screen-settings" class="screen hidden">
+    <div class="panel panel-narrow">
+      <div class="panel-head">
+        <button class="back-btn" data-action="back-menu">← Back</button>
+        <h2>SETTINGS</h2>
+        <span class="panel-spacer"></span>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <strong>Screen shake</strong>
+          <span>Shake the table on impacts</span>
+        </div>
+        <button class="toggle" id="toggleShake" role="switch" aria-checked="true"><span class="knob"></span></button>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <strong>Reset progress</strong>
+          <span>Lock all levels again (cannot be undone)</span>
+        </div>
+        <button class="btn btn-small btn-danger" id="resetProgress">RESET</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BATTLE ===== -->
+  <main class="game hidden" id="battle">
     <header class="header">
       <div>
-        <h1>🧽 Rubble Rumble</h1>
-        <p>AIM · CHARGE · COVER</p>
+        <h1>🧽 Rubber Rumble</h1>
+        <p>AIM · CHARGE · COVER <span id="levelBadge" class="badge"></span></p>
       </div>
-      <button id="restart" class="restart">Restart ↻</button>
+      <div class="header-actions">
+        <button id="menuBtn" class="restart">Menu</button>
+        <button id="restart" class="restart">Restart ↻</button>
+      </div>
     </header>
 
     <section class="scoreboard">
@@ -34,7 +179,12 @@
       <div id="result" class="result hidden">
         <h2 id="resultTitle">VICTORY！</h2>
         <p id="resultText"></p>
-        <button id="playAgain">Play Again</button>
+        <p id="resultInfo" class="result-info"></p>
+        <div class="result-buttons">
+          <button id="nextLevel" class="hidden">NEXT LEVEL</button>
+          <button id="retryBtn" class="hidden">RETRY</button>
+          <button id="resultMenu" class="btn-secondary">MENU</button>
+        </div>
       </div>
     </div>
 
@@ -65,6 +215,6 @@
     </footer>
   </main>
 
-  <script src="script.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

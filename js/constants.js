@@ -1,0 +1,14 @@
+export const W = 900;
+export const H = 560;
+
+export const TABLE = { left: 55, right: 845, top: 45, bottom: 515 };
+export const ERASER = { length: 92, width: 43, height: 12 };
+
+// Cover tolerance parameters
+export const COVER_TOLERANCE = {
+  position: 25,
+  angle: 25 * Math.PI / 180,
+  corner: 20
+};
+
+export const VFX = { maxParticles: 320 };
