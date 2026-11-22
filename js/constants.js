@@ -12,3 +12,7 @@ export const COVER_TOLERANCE = {
 };
 
 export const VFX = { maxParticles: 320 };
+
+// Google Form opened by the FEEDBACK button on the main menu
+export const FEEDBACK_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdLE5OU9nKqpm0niDIACH8ybkSJIk8137BLtK9fhzxzeGuoMg/viewform?usp=publish-editor";

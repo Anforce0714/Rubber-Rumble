@@ -1,4 +1,5 @@
 // Menus: main menu, mode select, level select, how-to-play, settings, result buttons
+import { FEEDBACK_URL } from './constants.js';
 import { getLeague } from './economy.js';
 import { startBattle, stopBattle } from './game.js';
 import { getNextLevel, LEVELS_PER_MODE, MODES } from './levels.js';
@@ -142,6 +143,9 @@ function startLevel(mode, level) {
 
 function backToMenu() {
   stopBattle();
+  // Feedback form opens in a new tab
+  $("feedbackLink").href = FEEDBACK_URL;
+
   initShop();
   showScreen("menu");
 }
@@ -239,6 +243,9 @@ export function initMenu() {
     $("resetProgress").textContent = "DONE ✓";
     resetTimer = setTimeout(disarmReset, 1500);
   });
+
+  // Feedback form opens in a new tab
+  $("feedbackLink").href = FEEDBACK_URL;
 
   initShop();
   showScreen("menu");
