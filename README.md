@@ -39,8 +39,8 @@ Your objective is simple: **completely cover your opponent's eraser to win!**
 ```text
 rubber-rumble/
 ├── index.html
-├── style.css
-├── script.js
+├── css/
+├── js/
 ```
 
 ## 🚀 Run Locally
@@ -54,7 +54,7 @@ rubber-rumble/
 
 Play directly in your browser:
 
-**[Play Rubber Rumble](https://YOUR-USERNAME.github.io/eraser-clash/)**
+**[Play Rubber Rumble](https://anforce0714.github.io/Rubber-Rumble/)**
 
 No installation required.
 
