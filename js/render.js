@@ -84,13 +84,10 @@ export function drawEraser(e) {
 
   // Top body
   const gradient = ctx.createLinearGradient(0, -ERASER.width / 2, 0, ERASER.width / 2);
-  if (e.color === "#4ba8f5") {
-    gradient.addColorStop(0, "#a9dcff");
-    gradient.addColorStop(1, "#348bd2");
-  } else {
-    gradient.addColorStop(0, "#ffb1b1");
-    gradient.addColorStop(1, "#d94c4c");
-  }
+  // Cosmetic skin colours (default: classic blue)
+  gradient.addColorStop(0, e.light || "#a9dcff");
+  gradient.addColorStop(1, e.dark || "#348bd2");
+
   ctx.fillStyle = gradient;
 
   ctx.beginPath();

@@ -45,5 +45,6 @@ export const S = {
   inBattle: false,
   loopRunning: false,
   resultTimer: null,
+  matchToken: null,              // unique id of the current match (reward guard)
   settings: { screenShake: true }
 };

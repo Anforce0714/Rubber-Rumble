@@ -1,22 +1,46 @@
 // Menus: main menu, mode select, level select, how-to-play, settings, result buttons
+import { getLeague } from './economy.js';
 import { startBattle, stopBattle } from './game.js';
 import { getNextLevel, LEVELS_PER_MODE, MODES } from './levels.js';
+import { initShop, openShop } from './shop.js';
+import { applySkinVars } from './skins.js';
 import { S } from './state.js';
 import {
-  getCompleted, getSettings, getUnlockedLevel, isHardModeUnlocked,
+  getCompleted, getEquippedSkin, getGold, getSettings, getTrophies, getUnlockedLevel, isHardModeUnlocked,
   isLevelCompleted, isLevelUnlocked, isModeUnlocked, resetProgress, setSetting
 } from './storage.js';
 
 const $ = id => document.getElementById(id);
 
-const SCREENS = ["menu", "modes", "levels", "how", "settings", "battle"];
+const SCREENS = ["menu", "modes", "levels", "how", "shop", "settings", "battle"];
 
 let levelsMode = "easy";      // mode shown on the level screen
 let levelsFrom = "modes";     // where the level screen's Back button goes
 let resetArmed = false;
 let resetTimer = null;
 
+// Trophies, league, Gold and equipped eraser on the main menu
+function renderHome() {
+  const trophies = getTrophies();
+  const league = getLeague(trophies);
+  const skin = getEquippedSkin();
+
+  $("homeTrophies").textContent = trophies;
+  $("homeLeague").textContent = league.name;
+  $("homeLeagueIcon").textContent = league.icon;
+  $("homeLeagueCard").dataset.league = league.name;
+  $("homeLeagueBar").style.width = Math.round(league.progress * 100) + "%";
+  $("homeLeagueText").textContent = league.nextName
+    ? `${trophies} / ${league.nextMin} to ${league.nextName}`
+    : "Top league reached!";
+
+  $("homeGold").textContent = getGold();
+  $("homeEraserName").textContent = skin.name;
+  applySkinVars($("homeEraser"), skin);
+}
+
 export function showScreen(name) {
+  if (name === "menu") renderHome();
   SCREENS.forEach(id => {
     const el = $(id === "battle" ? "battle" : "screen-" + id);
     el.classList.toggle("hidden", id !== name);
@@ -118,6 +142,7 @@ function startLevel(mode, level) {
 
 function backToMenu() {
   stopBattle();
+  initShop();
   showScreen("menu");
 }
 
@@ -145,6 +170,7 @@ export function initMenu() {
     switch (el.dataset.action) {
       case "play": openModes(); break;
       case "levels": openLevels("easy", "menu"); break;
+      case "shop": openShop(); showScreen("shop"); break;
       case "how": showScreen("how"); break;
       case "settings": renderSettings(); showScreen("settings"); break;
       case "back-menu": showScreen("menu"); break;
@@ -214,5 +240,6 @@ export function initMenu() {
     resetTimer = setTimeout(disarmReset, 1500);
   });
 
+  initShop();
   showScreen("menu");
 }

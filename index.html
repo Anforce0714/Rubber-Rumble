@@ -22,6 +22,26 @@
   <!-- ===== MAIN MENU ===== -->
   <section id="screen-menu" class="screen">
     <div class="menu-card">
+      <div class="home-stats">
+        <div class="stat-card stat-league" id="homeLeagueCard" data-league="Bronze">
+          <span class="league-icon" id="homeLeagueIcon">🥉</span>
+          <div class="stat-body">
+            <b id="homeLeague">Bronze</b>
+            <span class="stat-line">🏆 <b id="homeTrophies">0</b></span>
+            <span class="bar"><span class="bar-fill" id="homeLeagueBar"></span></span>
+            <small id="homeLeagueText"></small>
+          </div>
+        </div>
+        <div class="stat-card stat-gold">
+          <span class="stat-ico">🪙</span>
+          <div class="stat-body"><b id="homeGold">0</b><small>Gold</small></div>
+        </div>
+        <div class="stat-card stat-eraser">
+          <span class="eraser-mini" id="homeEraser"></span>
+          <div class="stat-body"><b id="homeEraserName">Classic Red</b><small>Equipped</small></div>
+        </div>
+      </div>
+
       <div class="logo" aria-hidden="true">
         <span class="logo-eraser blue"></span>
         <span class="logo-vs">VS</span>
@@ -37,13 +57,14 @@
       <div class="menu-buttons">
         <button class="btn btn-gold btn-play" data-action="play"><span class="ico">▶</span>PLAY</button>
         <button class="btn" data-action="levels"><span class="ico">🏁</span>LEVELS</button>
+        <button class="btn btn-shop" data-action="shop"><span class="ico">🛒</span>SHOP</button>
         <div class="menu-row">
           <button class="btn btn-dark" data-action="how"><span class="ico">❓</span>HOW TO PLAY</button>
           <button class="btn btn-dark" data-action="settings"><span class="ico">⚙️</span>SETTINGS</button>
         </div>
       </div>
 
-      <p class="menu-foot">Land your eraser on top of the rival's to win</p>
+      <p class="menu-foot">Win matches to earn trophies and Gold</p>
     </div>
   </section>
 
@@ -111,13 +132,37 @@
       </div>
 
       <ol class="how-list">
-        <li><b>Aim.</b> Click or tap the table to point your blue eraser. You can drag to fine-tune the direction.</li>
+        <li><b>Aim.</b> Click or tap the table to point your eraser. You can drag to fine-tune the direction.</li>
         <li><b>Charge.</b> Press and hold the shoot button. The power bar fills up. Don't overshoot!</li>
         <li><b>Shoot.</b> Release the button to launch your eraser through the air.</li>
         <li><b>Cover.</b> Land your eraser on top of the red one so it is fully covered. Match its angle too!</li>
         <li><b>Take turns.</b> If you miss, the AI shoots back. If it covers your eraser first, you lose.</li>
         <li><b>Progress.</b> Win a level to unlock the next one. Beat Easy Level 20 to unlock Hard Mode.</li>
       </ol>
+    </div>
+  </section>
+
+  <!-- ===== ERASER SHOP ===== -->
+  <section id="screen-shop" class="screen hidden">
+    <div class="panel">
+      <div class="panel-head">
+        <button class="back-btn" data-action="back-menu">← Back</button>
+        <h2>ERASER SHOP</h2>
+        <span class="gold-chip">🪙 <b id="shopGold">0</b></span>
+      </div>
+
+      <div class="shop-layout">
+        <div class="shop-preview">
+          <div class="preview-stage"><div class="eraser-big" id="shopPreviewEraser"></div></div>
+          <h3 id="shopPreviewName">Classic Red</h3>
+          <p class="preview-status" id="shopPreviewStatus"></p>
+          <button class="btn" id="shopAction">EQUIP</button>
+          <p class="hint" id="shopMessage"></p>
+        </div>
+
+        <div class="skin-grid" id="skinGrid"></div>
+      </div>
+      <p class="hint">Skins only change colour. They never affect power, aim or coverage.</p>
     </div>
   </section>
 
@@ -141,7 +186,7 @@
       <div class="setting-row">
         <div>
           <strong>Reset progress</strong>
-          <span>Lock all levels again (cannot be undone)</span>
+          <span>Erase levels, trophies, Gold and skins (cannot be undone)</span>
         </div>
         <button class="btn btn-small btn-danger" id="resetProgress">RESET</button>
       </div>
@@ -163,12 +208,12 @@
 
     <section class="scoreboard">
       <div class="player">
-        <span class="dot blue"></span>
+        <span class="dot blue" id="playerDot"></span>
         Player
       </div>
       <div id="status">Player round：Choose angle</div>
       <div class="player">
-        <span class="dot red"></span>
+        <span class="dot red" id="aiDot"></span>
         AI Opponent
       </div>
     </section>
@@ -180,6 +225,7 @@
         <h2 id="resultTitle">VICTORY！</h2>
         <p id="resultText"></p>
         <p id="resultInfo" class="result-info"></p>
+        <div id="resultRewards" class="result-rewards"></div>
         <div class="result-buttons">
           <button id="nextLevel" class="hidden">NEXT LEVEL</button>
           <button id="retryBtn" class="hidden">RETRY</button>

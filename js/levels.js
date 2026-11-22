@@ -29,11 +29,11 @@ const round = n => Math.round(n * 1000) / 1000;
 // Difficulty keyframes at d = 0 (Easy 1), 0.4 (Easy 20), 0.5 (Hard 1), 1 (Hard 20)
 const KEY_D = [0, 0.4, 0.5, 1];
 const KEYS = {
-  aimError:      [0.18, 0.085, 0.075, 0.062],  // +/- radians on the aim direction
-  powerSkill:    [0.20, 0.65, 0.75, 0.90],     // 0 = original estimate, 1 = calibrated
-  powerError:    [7.5, 4.2, 4.0, 3.4],         // +/- strength noise
-  angleError:    [0.70, 0.45, 0.38, 0.28],     // +/- radians on the eraser's final angle
-  mistakeChance: [0.28, 0.15, 0.13, 0.11]      // chance of a clearly bad shot
+  aimError:      [0.165, 0.078, 0.067, 0.056],  // +/- radians on the aim direction
+  powerSkill:    [0.22,  0.68,  0.78,  0.92],   // 0 = original estimate, 1 = calibrated
+  powerError:    [7.0,   3.9,   3.65,  3.1],    // +/- strength noise
+  angleError:    [0.65,  0.42,  0.35,  0.26],   // +/- radians on the eraser's final angle
+  mistakeChance: [0.26,  0.135, 0.115, 0.095]   // chance of a clearly bad shot
 };
 
 function interpolate(d, values) {
@@ -63,4 +63,11 @@ export function getNextLevel(mode, level) {
   if (level < LEVELS_PER_MODE) return { mode, level: level + 1 };
   if (mode === "easy") return { mode: "hard", level: 1 };
   return null;
+}
+
+// Which AI tier a level belongs to (used for trophy and Gold rewards):
+// Easy Mode 1-10 = "easy", Easy Mode 11-20 = "normal", Hard Mode = "hard"
+export function getAITier(mode, level) {
+  if (mode === "hard") return "hard";
+  return level <= LEVELS_PER_MODE / 2 ? "easy" : "normal";
 }

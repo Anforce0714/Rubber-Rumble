@@ -15,3 +15,6 @@ export const levelBadge = document.getElementById("levelBadge");
 export const resultInfo = document.getElementById("resultInfo");
 export const nextLevelButton = document.getElementById("nextLevel");
 export const retryButton = document.getElementById("retryBtn");
+export const resultRewards = document.getElementById("resultRewards");
+export const playerDot = document.getElementById("playerDot");
+export const aiDot = document.getElementById("aiDot");

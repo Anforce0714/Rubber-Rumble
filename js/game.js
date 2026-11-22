@@ -1,19 +1,42 @@
 import { aiTurn } from './ai.js';
 import { H, W } from './constants.js';
 import { getLevelConfig, getNextLevel, MODES } from './levels.js';
-import { canvas, instruction, launchButton, levelBadge, nextLevelButton, resultInfo, retryButton, powerFill, powerText, result, resultText, resultTitle, statusText } from './dom.js';
+import { canvas, instruction, launchButton, levelBadge, nextLevelButton, resultInfo, resultRewards, retryButton, playerDot, aiDot, powerFill, powerText, result, resultText, resultTitle, statusText } from './dom.js';
 import { checkLanding, createEraser, updateFlight } from './physics.js';
 import { draw } from './render.js';
 import { S } from './state.js';
-import { completeLevel, getSettings } from './storage.js';
+import { getSettings, getEquippedSkin, recordMatch } from './storage.js';
+import { getAISkin } from './skins.js';
+import { getRandomSpawn } from './spawn.js';
 import { addFloatText, chargeEffect, createDust, createShockwave, createSparks, createVictoryParticles, flash, initMotes, screenShake, updateVFX } from './vfx.js';
 
 export function resetGame() {
   clearTimeout(S.aiTimer);
   clearTimeout(S.resultTimer);
 
-  S.player = createEraser(300, 280, "#4ba8f5", "player");
-  S.ai = createEraser(610, 280, "#ef6666", "ai");
+  // Skins are cosmetic: only colours differ, positions/size/physics are identical
+  const playerSkin = getEquippedSkin();
+  const aiSkin = getAISkin(playerSkin.id, S.mode || "easy", S.level || 1);
+
+  // Random starting positions and rotations
+  const spawn = getRandomSpawn();
+
+  S.player = createEraser(spawn.player.x, spawn.player.y, playerSkin.main, "player");
+  S.player.angle = spawn.player.angle;
+  S.player.light = playerSkin.light;
+  S.player.dark = playerSkin.dark;
+
+  S.ai = createEraser(spawn.ai.x, spawn.ai.y, aiSkin.main, "ai");
+  S.ai.angle = spawn.ai.angle;
+  S.ai.light = aiSkin.light;
+  S.ai.dark = aiSkin.dark;
+
+  playerDot.style.background = playerSkin.main;
+  aiDot.style.background = aiSkin.main;
+
+  // New match = new reward token (a match can only be rewarded once)
+  S.matchToken = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  resultRewards.textContent = "";
 
   S.turn = "player";
   S.direction = Math.atan2(S.ai.y - S.player.y, S.ai.x - S.player.x);
@@ -105,6 +128,42 @@ export function launch(eraser, angle, strength, targetAngle = angle) {
 }
 
 // Game over
+// Fill the reward chips on the result screen
+function showRewards(r) {
+  resultRewards.textContent = "";
+  if (!r) return;
+
+  const chip = (cls, text) => {
+    const el = document.createElement("span");
+    el.className = "reward-chip " + cls;
+    el.textContent = text;
+    resultRewards.appendChild(el);
+  };
+
+  chip("trophy", `${r.trophyDelta >= 0 ? "+" : ""}${r.trophyDelta} 🏆`);
+  chip("gold", `+${r.goldDelta} 🪙`);
+
+  const parts = [];
+  if (r.won) {
+    parts.push(`Win +${r.breakdown.win}`, `Level +${r.breakdown.completion}`);
+    if (r.breakdown.firstClear) parts.push(`First clear +${r.breakdown.firstClear}`);
+  } else {
+    parts.push(`Consolation +${r.breakdown.defeat}`);
+  }
+
+  const detail = document.createElement("span");
+  detail.className = "reward-detail";
+  detail.textContent = "Gold: " + parts.join(" · ");
+  resultRewards.appendChild(detail);
+
+  if (r.leagueChange !== 0) {
+    const el = document.createElement("span");
+    el.className = "reward-league " + (r.leagueChange > 0 ? "up" : "down");
+    el.textContent = r.leagueChange > 0 ? `⬆ Promoted to ${r.leagueAfter}!` : `⬇ Dropped to ${r.leagueAfter}`;
+    resultRewards.appendChild(el);
+  }
+}
+
 export function endGame(side) {
   if (S.gameOver) return;
 
@@ -147,6 +206,10 @@ export function endGame(side) {
   nextLevelButton.classList.add("hidden");
   retryButton.classList.add("hidden");
 
+  // Trophies, Gold and progress: granted once per match (token guard in storage)
+  const matchResult = S.mode ? recordMatch(S.matchToken, S.mode, S.level, side === "player") : null;
+  showRewards(matchResult);
+
   if (side === "player") {
     resultTitle.textContent = "🏆 VICTORY!";
     resultText.textContent = "You covered the AI's eraser with yours!";
@@ -155,7 +218,7 @@ export function endGame(side) {
     let info = levelName;
 
     if (S.mode) {
-      const progress = completeLevel(S.mode, S.level);
+      const progress = matchResult ? matchResult.progress : {};
 
       if (progress.hardModeJustUnlocked) {
         info += " · Hard Mode unlocked!";
