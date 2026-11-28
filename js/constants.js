@@ -16,3 +16,7 @@ export const VFX = { maxParticles: 320 };
 // Google Form opened by the FEEDBACK button on the main menu
 export const FEEDBACK_URL =
   "https://docs.google.com/forms/d/e/1FAIpQLSdLE5OU9nKqpm0niDIACH8ybkSJIk8137BLtK9fhzxzeGuoMg/viewform?usp=publish-editor";
+
+// Stalemate rule: after this many rounds (one shot each) with no cover,
+// the side whose closest landing was nearer to the rival eraser wins
+export const MAX_ROUNDS = 10;

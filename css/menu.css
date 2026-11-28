@@ -472,6 +472,17 @@ a.btn { text-decoration: none; }
   .gold-chip { min-width: 76px; padding: 7px 10px; font-size: 14px; }
 }
 
+/* ----- first-time tutorial tip ----- */
+.tutorial-tip {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5;
+  max-width: 92%; padding: 11px 20px; border-radius: 30px; text-align: center;
+  background: rgba(17, 21, 29, 0.92); border: 2px solid var(--gold); color: #fff;
+  font-size: 15px; font-weight: bold; pointer-events: none;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 18px rgba(245,198,93,0.35);
+  animation: tipPulse 1.4s ease-in-out infinite;
+}
+@keyframes tipPulse { 50% { transform: translateX(-50%) translateY(-5px); } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }

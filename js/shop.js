@@ -1,4 +1,5 @@
 // Eraser shop: preview, buy, equip
+import { sfx } from './audio.js';
 import { applySkinVars, getSkin, SKINS } from './skins.js';
 import {
   buySkin, equipSkin, getEquippedSkinId, getGold, isSkinOwned
@@ -83,12 +84,12 @@ export function renderShop() {
     action.textContent = "EQUIP";
     action.disabled = false;
   } else if (gold >= skin.price) {
-    $("shopPreviewStatus").textContent = `Locked · Costs ${skin.price} Gold`;
+    $("shopPreviewStatus").textContent = `Locked · costs ${skin.price} Gold`;
     action.textContent = `BUY · 🪙 ${skin.price}`;
     action.disabled = false;
     action.classList.add("btn-gold");
   } else {
-    $("shopPreviewStatus").textContent = `Locked · Costs ${skin.price} Gold`;
+    $("shopPreviewStatus").textContent = `Locked · costs ${skin.price} Gold`;
     action.textContent = `NEED ${skin.price - gold} MORE 🪙`;
     action.disabled = false;               // clickable so we can explain why it fails
     action.classList.add("btn-dark", "btn-disabled");
@@ -105,9 +106,11 @@ function onAction() {
     const r = buySkin(skin.id);
     if (r.ok) {
       equipSkin(skin.id);                  // equip right after buying
+      sfx.coin();
       message(`Purchased ${skin.name}! It is now equipped.`, "good");
     } else if (r.reason === "insufficient") {
       message(`Not enough Gold: you need ${r.missing} more. Win battles to earn Gold!`, "bad");
+      sfx.error();
       nudge($("shopAction"));
     }
   }

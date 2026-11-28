@@ -46,5 +46,7 @@ export const S = {
   loopRunning: false,
   resultTimer: null,
   matchToken: null,              // unique id of the current match (reward guard)
-  settings: { screenShake: true }
+  shots: { player: 0, ai: 0 },    // shots taken this match
+  bestMiss: { player: Infinity, ai: Infinity },  // closest landing to the rival eraser
+  settings: { screenShake: true, sound: true }
 };

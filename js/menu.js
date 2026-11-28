@@ -1,4 +1,5 @@
 // Menus: main menu, mode select, level select, how-to-play, settings, result buttons
+import { setSoundEnabled, sfx } from './audio.js';
 import { FEEDBACK_URL } from './constants.js';
 import { getLeague } from './economy.js';
 import { startBattle, stopBattle } from './game.js';
@@ -8,7 +9,7 @@ import { applySkinVars } from './skins.js';
 import { S } from './state.js';
 import {
   getCompleted, getEquippedSkin, getGold, getSettings, getTrophies, getUnlockedLevel, isHardModeUnlocked,
-  isLevelCompleted, isLevelUnlocked, isModeUnlocked, resetProgress, setSetting
+  isLevelCompleted, isLevelUnlocked, isModeUnlocked, resetProgress, resetTutorial, setSetting
 } from './storage.js';
 
 const $ = id => document.getElementById(id);
@@ -144,7 +145,8 @@ function startLevel(mode, level) {
 function backToMenu() {
   stopBattle();
   // Feedback form opens in a new tab
-  $("feedbackLink").href = FEEDBACK_URL;
+  const feedbackLink = $("feedbackLink");
+  if (feedbackLink) feedbackLink.href = FEEDBACK_URL;
 
   initShop();
   showScreen("menu");
@@ -154,6 +156,8 @@ function backToMenu() {
 
 function renderSettings() {
   $("toggleShake").setAttribute("aria-checked", String(S.settings.screenShake));
+  $("toggleSound").setAttribute("aria-checked", String(S.settings.sound));
+  $("replayTutorial").textContent = "REPLAY";
   disarmReset();
 }
 
@@ -224,7 +228,26 @@ export function initMenu() {
     if (next) startLevel(next.mode, next.level);
   });
 
+  // Button click sound (not the shoot button: it fires on release)
+  document.addEventListener("click", event => {
+    const el = event.target.closest("button, a.btn");
+    if (el && el.id !== "launch" && !el.disabled) sfx.click();
+  });
+
   // Settings
+  $("toggleSound").addEventListener("click", () => {
+    S.settings.sound = !S.settings.sound;
+    setSetting("sound", S.settings.sound);
+    setSoundEnabled(S.settings.sound);
+    $("toggleSound").setAttribute("aria-checked", String(S.settings.sound));
+    sfx.click();
+  });
+
+  $("replayTutorial").addEventListener("click", () => {
+    resetTutorial();
+    $("replayTutorial").textContent = "DONE ✓";
+  });
+
   $("toggleShake").addEventListener("click", () => {
     S.settings.screenShake = !S.settings.screenShake;
     setSetting("screenShake", S.settings.screenShake);
@@ -245,7 +268,8 @@ export function initMenu() {
   });
 
   // Feedback form opens in a new tab
-  $("feedbackLink").href = FEEDBACK_URL;
+  const feedbackLink = $("feedbackLink");
+  if (feedbackLink) feedbackLink.href = FEEDBACK_URL;
 
   initShop();
   showScreen("menu");

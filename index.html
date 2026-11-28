@@ -138,6 +138,7 @@
         <li><b>Shoot.</b> Release the button to launch your eraser through the air.</li>
         <li><b>Cover.</b> Land your eraser on top of the red one so it is fully covered. Match its angle too!</li>
         <li><b>Take turns.</b> If you miss, the AI shoots back. If it covers your eraser first, you lose.</li>
+        <li><b>Round limit.</b> If nobody covers after 10 rounds, the closest landing to the rival's eraser wins.</li>
         <li><b>Progress.</b> Win a level to unlock the next one. Beat Easy Level 20 to unlock Hard Mode.</li>
       </ol>
     </div>
@@ -186,6 +187,22 @@
 
       <div class="setting-row">
         <div>
+          <strong>Sound effects</strong>
+          <span>Launch, landing, victory and button sounds</span>
+        </div>
+        <button class="toggle" id="toggleSound" role="switch" aria-checked="true"><span class="knob"></span></button>
+      </div>
+
+      <div class="setting-row">
+        <div>
+          <strong>Tutorial hints</strong>
+          <span>Show the first-battle tips again</span>
+        </div>
+        <button class="btn btn-small btn-dark" id="replayTutorial">REPLAY</button>
+      </div>
+
+      <div class="setting-row">
+        <div>
           <strong>Reset progress</strong>
           <span>Erase levels, trophies, Gold and skins (cannot be undone)</span>
         </div>
@@ -221,6 +238,7 @@
 
     <div class="canvas-wrap">
       <canvas id="gameCanvas" width="900" height="560"></canvas>
+      <div id="tutorialTip" class="tutorial-tip hidden"></div>
 
       <div id="result" class="result hidden">
         <h2 id="resultTitle">VICTORY！</h2>

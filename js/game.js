@@ -1,18 +1,33 @@
 import { aiTurn } from './ai.js';
-import { H, W } from './constants.js';
+import { H, MAX_ROUNDS, W } from './constants.js';
 import { getLevelConfig, getNextLevel, MODES } from './levels.js';
 import { canvas, instruction, launchButton, levelBadge, nextLevelButton, resultInfo, resultRewards, retryButton, playerDot, aiDot, powerFill, powerText, result, resultText, resultTitle, statusText } from './dom.js';
 import { checkLanding, createEraser, updateFlight } from './physics.js';
 import { draw } from './render.js';
 import { S } from './state.js';
+import { sfx, setSoundEnabled, startCharge, stopCharge, unlockAudio, updateCharge } from './audio.js';
+import { startTutorial, stopTutorial, tutorialEvent } from './tutorial.js';
 import { getSettings, getEquippedSkin, recordMatch } from './storage.js';
 import { getAISkin } from './skins.js';
 import { getRandomSpawn } from './spawn.js';
 import { addFloatText, chargeEffect, createDust, createShockwave, createSparks, createVictoryParticles, flash, initMotes, screenShake, updateVFX } from './vfx.js';
 
+// Level + round indicator in the battle header
+function updateBadge() {
+  if (!S.mode) return;
+  const round = Math.min(MAX_ROUNDS, S.shots.ai + 1);
+  const roundText = round === MAX_ROUNDS ? "Final round" : `Round ${round}/${MAX_ROUNDS}`;
+  levelBadge.textContent = `${MODES[S.mode].short} · Level ${S.level} · ${roundText}`;
+}
+
 export function resetGame() {
   clearTimeout(S.aiTimer);
   clearTimeout(S.resultTimer);
+  stopCharge();
+
+  S.shots = { player: 0, ai: 0 };
+  S.bestMiss = { player: Infinity, ai: Infinity };
+  updateBadge();
 
   // Skins are cosmetic: only colours differ, positions/size/physics are identical
   const playerSkin = getEquippedSkin();
@@ -95,6 +110,10 @@ export function launch(eraser, angle, strength, targetAngle = angle) {
 
   S.activeEraser = eraser;
   S.moving = true;
+  S.shots[eraser.side]++;
+
+  sfx.launch(strength);
+  if (eraser.side === "player") tutorialEvent("shoot");
 
   const speed = 2.5 + strength * 0.085;
 
@@ -164,12 +183,16 @@ function showRewards(r) {
   }
 }
 
-export function endGame(side) {
+export function endGame(side, options = {}) {
   if (S.gameOver) return;
 
   S.gameOver = true;
   S.moving = false;
   S.charging = false;
+  stopCharge();
+  stopTutorial();
+  if (side === "player") sfx.win();
+  else sfx.lose();
   launchButton.classList.remove("charging");
 
   const winningEraser = side === "player" ? S.player : S.ai;
@@ -181,7 +204,7 @@ export function endGame(side) {
   createShockwave(winningEraser.x, winningEraser.y, "#ffffff", 180, 120);
   createShockwave(winningEraser.x, winningEraser.y, "#ffd54f", 220, 240);
 
-  addFloatText(winningEraser.x, winningEraser.y - 60, "COVER!", "#ffd54f", 40);
+  addFloatText(winningEraser.x, winningEraser.y - 60, options.timeUp ? "CLOSEST!" : "COVER!", "#ffd54f", 40);
 
   flash("#fff3c4", 1);
   screenShake(9, 350);
@@ -212,7 +235,9 @@ export function endGame(side) {
 
   if (side === "player") {
     resultTitle.textContent = "🏆 VICTORY!";
-    resultText.textContent = "You covered the AI's eraser with yours!";
+    resultText.textContent = options.timeUp
+      ? "Time's up! Your closest shot wins the round limit."
+      : "You covered the AI's eraser with yours!";
     statusText.textContent = "Player covered the target!";
 
     let info = levelName;
@@ -237,7 +262,9 @@ export function endGame(side) {
     }
   } else {
     resultTitle.textContent = "💥 DEFEAT";
-    resultText.textContent = "The AI covered your eraser with theirs!";
+    resultText.textContent = options.timeUp
+      ? "Time's up! The AI's closest shot was nearer."
+      : "The AI covered your eraser with theirs!";
     statusText.textContent = "AI covered the target!";
     resultInfo.textContent = levelName;
     retryButton.classList.remove("hidden");
@@ -280,6 +307,7 @@ export function gameLoop(timestamp) {
   if (S.charging && !S.gameOver) {
     S.power = Math.min(100, (performance.now() - S.chargeStart) / 1800 * 100);
     updatePower();
+    updateCharge(S.power);
 
     S.chargeFx += dt;
     if (S.chargeFx > 30) {
@@ -303,14 +331,32 @@ export function gameLoop(timestamp) {
 
 // Resolve a landing: win check, otherwise MISS and next turn
 export function handleLanding(e) {
+  sfx.land();
+
   const success = checkLanding(e);
 
   if (success) {
     endGame(S.winner);
-  } else {
-    addFloatText(e.x, e.y - 50, "MISS", "#b0bec5", 24);
-    nextTurn();
+    return;
   }
+
+  sfx.miss();
+  addFloatText(e.x, e.y - 50, "MISS", "#b0bec5", 24);
+
+  // Remember how close this shot came to the rival's eraser (for the round limit)
+  const rival = e.side === "player" ? S.ai : S.player;
+  const gap = Math.hypot(e.x - rival.x, e.y - rival.y);
+  S.bestMiss[e.side] = Math.min(S.bestMiss[e.side], gap);
+
+  updateBadge();
+
+  // Stalemate rule: after the last round, the closest landing wins (ties go to the player)
+  if (e.side === "ai" && S.shots.ai >= MAX_ROUNDS) {
+    endGame(S.bestMiss.player <= S.bestMiss.ai ? "player" : "ai", { timeUp: true });
+    return;
+  }
+
+  nextTurn();
 }
 
 export function setupInput() {
@@ -321,6 +367,7 @@ export function setupInput() {
 
     S.aiming = true;
     setDirectionFromPointer(event);
+    tutorialEvent("aim");
     instruction.textContent = "Direction set — ready to charge";
   });
 
@@ -341,6 +388,8 @@ export function setupInput() {
     S.charging = true;
     S.chargeStart = performance.now();
     launchButton.classList.add("charging");
+    startCharge();
+    tutorialEvent("charge");
   });
 
   // Release power
@@ -349,6 +398,7 @@ export function setupInput() {
 
     S.charging = false;
     launchButton.classList.remove("charging");
+    stopCharge();
 
     if (S.turn !== "player" || S.gameOver) return;
 
@@ -369,6 +419,12 @@ export function setupInput() {
 
 export function initGame() {
   S.settings = getSettings();
+  setSoundEnabled(S.settings.sound);
+
+  // Browsers need a user gesture before audio can start
+  document.addEventListener("pointerdown", unlockAudio);
+  document.addEventListener("keydown", unlockAudio);
+
   setupInput();
   initMotes();
 }
@@ -380,9 +436,8 @@ export function startBattle(mode, level) {
   S.levelConfig = getLevelConfig(mode, level);
   S.inBattle = true;
 
-  levelBadge.textContent = `${MODES[mode].short} · Level ${level}`;
-
   resetGame();
+  startTutorial();
 
   if (!S.loopRunning) {
     S.loopRunning = true;
@@ -404,4 +459,6 @@ export function stopBattle() {
 
   launchButton.classList.remove("charging");
   result.classList.add("hidden");
+  stopCharge();
+  stopTutorial();
 }

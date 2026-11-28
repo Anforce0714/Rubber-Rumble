@@ -18,7 +18,8 @@ const DEFAULT_SAVE = {
   ownedSkins: [DEFAULT_SKIN],
   equippedSkin: DEFAULT_SKIN,
   rewardedLevels: { easy: [], hard: [] },  // levels whose first-clear Gold was paid
-  settings: { screenShake: true }
+  tutorialDone: false,
+  settings: { screenShake: true, sound: true }
 };
 
 let cache = null;
@@ -63,8 +64,10 @@ function sanitize(raw) {
       easy: cleanLevelList(raw.rewardedLevels && raw.rewardedLevels.easy),
       hard: cleanLevelList(raw.rewardedLevels && raw.rewardedLevels.hard)
     },
+    tutorialDone: !!raw.tutorialDone,
     settings: {
-      screenShake: !(raw.settings && raw.settings.screenShake === false)
+      screenShake: !(raw.settings && raw.settings.screenShake === false),
+      sound: !(raw.settings && raw.settings.sound === false)
     }
   };
 
@@ -258,6 +261,22 @@ export function equipSkin(id) {
   s.equippedSkin = id;
   save();
   return { ok: true };
+}
+
+// ---------- tutorial ----------
+
+export function isTutorialDone() { return load().tutorialDone; }
+
+export function markTutorialDone() {
+  const s = load();
+  if (s.tutorialDone) return;
+  s.tutorialDone = true;
+  save();
+}
+
+export function resetTutorial() {
+  load().tutorialDone = false;
+  save();
 }
 
 // ---------- settings & reset ----------
